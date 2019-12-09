@@ -7,4 +7,4 @@ phases:
   build:
     commands:
       - pip install zappa
-      - zappa version
+      - zappa --version
