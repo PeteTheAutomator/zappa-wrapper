@@ -1,25 +1,87 @@
-Project:
-  Type: AWS::CodeBuild::Project
-  Properties:
-    Name: myProjectName
-    Description: A description about my project
-    ServiceRole: !GetAtt ServiceRole.Arn
-    Artifacts:
-      Type: no_artifacts
-    Environment:
-      Type: LINUX_CONTAINER
-      ComputeType: BUILD_GENERAL1_SMALL
-      Image: aws/codebuild/java:openjdk-8
-      EnvironmentVariables:
-      - Name: varName
-        Value: varValue
-    Source:
-      Location: codebuild-demo-test/0123ab9a371ebf0187b0fe5614fbb72c
-      Type: S3
-    TimeoutInMinutes: 10
-    Tags:
-      - Key: Key1
-        Value: Value1
-      - Key: Key2
-        Value: Value2
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS CloudFormation Template for deploying the build and run environment for a serverless Django app.'
+Parameters:
+  ProjectName:
+    Description: The Name of the Project
+    MaxLength: 32
+    MinLength: 4
+    Type: String
+  ProjectDescription:
+    Description: A brief description of the Project
+    MaxLength: 64
+    MinLength: 4
+    Type: String
+  GithubUrl:
+    Description: The GitHub URL of the Project
+    MaxLength: 256
+    MinLength: 24
+    Type: String
 
+Resources:
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref ProjectName
+      Description: !Ref ProjectDescription
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      Artifacts:
+        Type: no_artifacts
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:1.0
+        EnvironmentVariables:
+        - Name: varName
+          Value: varValue
+      Source:
+        Location: !Ref GithubUrl
+        Type: GITHUB
+      TimeoutInMinutes: 5
+      QueuedTimeoutInMinutes: 5
+      Tags:
+        - Key: Key1
+          Value: Value1
+        - Key: Key2
+          Value: Value2
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Join ['-', ['CodeBuildServiceRolePolicy', !Ref 'ProjectName']]
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Join ['', ['arn:aws:logs:eu-west-2:', !Ref 'AWS::AccountId', ':log-group:/aws/codebuild/', !Ref 'ProjectName']]
+                  - !Join ['', ['arn:aws:logs:eu-west-2:', !Ref 'AWS::AccountId', ':log-group:/aws/codebuild/', !Ref 'ProjectName', ':*']]
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                  - arn:aws:s3:::codepipeline-eu-west-2-*
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+              - Effect: Allow
+                Action:
+                  - codebuild:CreateReportGroup
+                  - codebuild:CreateReport
+                  - codebuild:UpdateReport
+                  - codebuild:BatchPutTestCases
+                Resource:
+                  - !Join ['', ['arn:aws:codebuild:eu-west-2:', !Ref 'AWS::AccountId', ':report-group/', !Ref 'ProjectName', '-*']]
