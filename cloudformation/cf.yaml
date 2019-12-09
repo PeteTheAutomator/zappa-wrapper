@@ -85,3 +85,9 @@ Resources:
                   - codebuild:BatchPutTestCases
                 Resource:
                   - !Join ['', ['arn:aws:codebuild:eu-west-2:', !Ref 'AWS::AccountId', ':report-group/', !Ref 'ProjectName', '-*']]
+
+  ProjectS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Join ['-', [!Ref 'AWS::AccountId', !Ref 'ProjectName']]

@@ -8,3 +8,5 @@ phases:
     commands:
       - pip install zappa
       - zappa --version
+      - zappa-config.py
+      - cat zappa_settings.py
