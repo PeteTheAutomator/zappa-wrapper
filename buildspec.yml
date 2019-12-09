@@ -10,4 +10,4 @@ phases:
       - zappa --version
       - ls -la
       - ./zappa-config.py
-      - cat ./zappa_settings.py
+      - cat ./zappa_settings.json
