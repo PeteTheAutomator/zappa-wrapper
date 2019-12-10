@@ -26,7 +26,6 @@ def write_zappa_config():
         'dev': {
             'aws_region': os.environ.get('ZAPPA_REGION'),
             'django_settings': os.environ.get('ZAPPA_DJANGO_SETTINGS'),
-            'profile_name': 'default',
             'runtime': 'python3.6',
             's3_bucket': os.environ.get('ZAPPA_S3_BUCKET')
         }
