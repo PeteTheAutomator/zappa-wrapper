@@ -6,6 +6,8 @@ phases:
       python: 3.7
   build:
     commands:
+      - virtualenv venv
+      - . ./venv/bin/activate
       - pip install zappa
       - zappa --version
       - ls -la
