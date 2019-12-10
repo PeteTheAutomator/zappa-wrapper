@@ -20,7 +20,7 @@ Parameters:
     Description: The Django Project settings module
     MaxLength: 128
     MinLength: 24
-    Default: myproject.myproject.settings
+    Default: myproject.settings
     Type: String
     
 
