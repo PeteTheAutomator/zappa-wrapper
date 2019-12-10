@@ -12,4 +12,5 @@ phases:
       - zappa --version
       - ls -la
       - ./zappa-config.py
-      - zappa deploy dev
+      - cat ./zappa_settings.json
+      - zappa undeploy dev
