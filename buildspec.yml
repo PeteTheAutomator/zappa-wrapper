@@ -7,7 +7,7 @@ phases:
     commands:
       - virtualenv venv
       - . ./venv/bin/activate
-      - pip install zappa
+      - pip install zappa Django==2.1.7
   build:
     commands:
       - ./zappa-config.py
